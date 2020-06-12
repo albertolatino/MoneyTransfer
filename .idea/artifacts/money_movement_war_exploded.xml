@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="money-movement:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/money_movement_war_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="money-movement/web/WebContent" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="money-movement" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
