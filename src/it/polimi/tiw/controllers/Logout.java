@@ -1,5 +1,5 @@
 package it.polimi.tiw.controllers;
-/*
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -11,26 +11,26 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet("/Logout")
 public class Logout extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public Logout() {
-		super();
-	}
+    public Logout() {
+        super();
+    }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
 
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			session.invalidate();
-		}
-		String path = getServletContext().getContextPath() + "/index.html";
-		response.sendRedirect(path);
-	}
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        String path = getServletContext().getContextPath() + "/index.html";
+        response.sendRedirect(path);
+    }
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		doGet(request, response);
-	}
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
 
-}*/
+}

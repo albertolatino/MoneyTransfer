@@ -85,7 +85,7 @@ public class CreateExpensesReport extends HttpServlet {
 
 		// Return view
 		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GetMissionDetails?missionid=" + missionId;
+		String path = ctxpath + "/GetAccountDetails?missionid=" + missionId;
 		response.sendRedirect(path);
 	}
 

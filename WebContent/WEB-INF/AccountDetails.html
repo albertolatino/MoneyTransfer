@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" media="all"
+          href="../css/mystyle.css" th:href="@{/css/mystyle.css}"/>
+</head>
+<body>
+<div align="right">
+    <a th:href="@{/Logout}">Logout</a>
+</div>
+<h1>Welcome to the Money Transfer Home Page</h1>
+<p th:text="${'Account transactions'}"></p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Import</th>
+        <th>Date</th>
+        <th>Origin</th>
+        <th>Destination</th>
+        <th>ID</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="t : ${transactions}">
+        <td th:text="${t.amount}"></td>
+        <td th:text="${t.date}"></td>
+        <td th:text="${t.originId}"></td>
+        <td th:text="${t.destinationId}"></td>
+        <td th:text="${t.transactionId}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div>
+    <p>Complete the form to make a transaction</p>
+    <form action="#" th:action="@{/CreateTransaction}" method="POST">
+        <fieldset>
+            <p>
+                Recipient Username: <input type="text" name="recipient-username" required/>
+            </p>
+            <p>
+                Recipient Account ID: <input type="text" name="recipient-account-id" required/>
+            </p>
+            <p>
+                Amount: <input type="text" name="amount" required/>
+            </p>
+            <p>
+                Description: <input type="text" name="description" required/>
+            </p>
+            <input type="submit" name="create-transaction">
+        </fieldset>
+    </form>
+</div>
+</body>
+</html>

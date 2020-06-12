@@ -7,6 +7,11 @@
         <element id="directory" name="classes">
           <element id="module-output" name="money-movement" />
         </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: org.thymeleaf:thymeleaf:Release1" />
+          <element id="library" level="project" name="commons-lang:commons-lang:2.6" />
+          <element id="library" level="project" name="Maven: org.thymeleaf:thymeleaf:Release" />
+        </element>
       </element>
     </root>
   </artifact>

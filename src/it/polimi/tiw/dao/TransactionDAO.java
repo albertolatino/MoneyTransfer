@@ -1,6 +1,6 @@
 package it.polimi.tiw.dao;
 
-import it.polimi.tiw.beans.Movement;
+import it.polimi.tiw.beans.Transaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,41 +9,43 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovementDAO {
+public class TransactionDAO {
     private Connection connection;
 
-    public MovementDAO(Connection connection) {
+    public TransactionDAO(Connection connection) {
         this.connection = connection;
     }
 
 
-    public List<Movement> findTransfersByAccount(int accountId) throws SQLException {
+    public List<Transaction> findTransactionsByAccount(int accountId) throws SQLException {
 
-        List<Movement> movements = new ArrayList<>();
+        List<Transaction> transactions = new ArrayList<>();
 
-        String query = "SELECT * from transfer where accountId = ? ORDER BY date DESC";
+        String query = "SELECT * from transaction where originId = ? OR destinationId = ? ORDER BY date DESC";
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setInt(1, accountId);
+            pstatement.setInt(2, accountId);
             try (ResultSet result = pstatement.executeQuery();) {
                 while (result.next()) {
-                    Movement movement = new Movement();//Create java Bean
-                    movement.setTransferId(result.getInt("transferId"));
-                    movement.setAmount((result.getDouble("amount")));
-                    movement.setOriginId(result.getInt("originId"));
-                    movement.setDestinationId(result.getInt("destinationId"));
-                    movement.setDate(result.getDate("date"));
-                    movements.add(movement);
+                    Transaction transaction = new Transaction();//Create java Bean
+                    transaction.setTransactionId(result.getInt("transactionId"));
+                    transaction.setDate(result.getDate("date"));
+                    transaction.setAmount((result.getDouble("amount")));
+                    transaction.setOriginId(result.getInt("originId"));
+                    transaction.setDestinationId(result.getInt("destinationId"));
+                    transactions.add(transaction);
                 }
             }
         }
-        return movements;
+        return transactions;
     }
 
 
     /**
      * Changes account balance.
+     *
      * @param accountId Account to be changed.
-     * @param balance Total balance in account.
+     * @param balance   Total balance in account.
      * @throws SQLException
      */
     public void changeAccountBalance(int accountId, double balance) throws SQLException {
@@ -71,7 +73,6 @@ public class MovementDAO {
 			pstatement.executeUpdate();
 		}
 	}*/
-
 
 
 }

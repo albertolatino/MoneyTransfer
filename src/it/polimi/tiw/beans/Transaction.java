@@ -3,9 +3,9 @@ package it.polimi.tiw.beans;
 
 import java.sql.Date;
 
-public class Movement {
+public class Transaction {
 
-    private int transferId;//KEY
+    private int transactionId;//KEY
     private double amount;
     private Date date;
     private int originId;
@@ -20,12 +20,12 @@ public class Movement {
         this.amount = amount;
     }
 
-    public int getTransferId() {
-        return transferId;
+    public int getTransactionId() {
+        return transactionId;
     }
 
-    public void setTransferId(int transferId) {
-        this.transferId = transferId;
+    public void setTransactionId(int transactionId) {
+        this.transactionId = transactionId;
     }
 
     public Date getDate() {
@@ -51,10 +51,6 @@ public class Movement {
     public void setDestinationId(int destinationId) {
         this.destinationId = destinationId;
     }
-
-
-
-
 
 
 }
