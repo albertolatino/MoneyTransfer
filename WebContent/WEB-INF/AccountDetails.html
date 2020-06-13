@@ -29,6 +29,7 @@
         <td th:text="${t.date}"></td>
         <td th:text="${t.originId}"></td>
         <td th:text="${t.destinationId}"></td>
+        <td th:text="${t.description}"></td>
         <td th:text="${t.transactionId}"></td>
     </tr>
     </tbody>
@@ -42,7 +43,7 @@
                 Recipient Username: <input type="text" name="recipient-username" required/>
             </p>
             <p>
-                Recipient Account ID: <input type="text" name="recipient-account-id" required/>
+                Recipient Account ID: <input type="text" name="recipient-accountid" required/>
             </p>
             <p>
                 Amount: <input type="text" name="amount" required/>

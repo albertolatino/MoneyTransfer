@@ -10,7 +10,15 @@ public class Transaction {
     private Date date;
     private int originId;
     private int destinationId;
+    private String description;
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public double getAmount() {
         return amount;

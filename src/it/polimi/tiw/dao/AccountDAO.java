@@ -39,6 +39,25 @@ public class AccountDAO {
     }
 
 
+    public Account findAccountsById(int accountId) throws SQLException {
+
+        Account account = new Account();//Create java Bean
+
+        String query = "SELECT * from account where accountId = ?";
+        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
+            pstatement.setInt(1, accountId);
+
+            try (ResultSet result = pstatement.executeQuery()) {
+                account.setUserId(result.getInt("userId"));
+                account.setAccountId(result.getInt("accountId"));
+                account.setBalance((result.getDouble("balance")));
+            }
+        }
+        return account;
+
+    }
+
+
     /**
      * Changes account balance.
      *

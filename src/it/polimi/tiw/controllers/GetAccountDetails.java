@@ -1,9 +1,12 @@
 package it.polimi.tiw.controllers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
+import it.polimi.tiw.beans.Transaction;
+import it.polimi.tiw.dao.TransactionDAO;
+import it.polimi.tiw.utils.ConnectionHandler;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -12,16 +15,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
-
-import it.polimi.tiw.beans.Transaction;
-import it.polimi.tiw.beans.User;
-import it.polimi.tiw.dao.TransactionDAO;
-import it.polimi.tiw.utils.ConnectionHandler;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
 @WebServlet("/GetAccountDetails")
 public class GetAccountDetails extends HttpServlet {
@@ -69,7 +66,7 @@ public class GetAccountDetails extends HttpServlet {
         // obtain the expense report for it
 
         //todo passare account a questa servlet in modo che venga passato a template account details
-        User user = (User) session.getAttribute("user");
+        //User user = (User) session.getAttribute("user");
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         List<Transaction> transactions;
         try {
@@ -78,6 +75,8 @@ public class GetAccountDetails extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to recover transactions");
             return;
         }
+
+        request.setAttribute("accountId", accountId);
 
         // Redirect to the Home page and add missions to the parameters
         String path = "/WEB-INF/AccountDetails.html";

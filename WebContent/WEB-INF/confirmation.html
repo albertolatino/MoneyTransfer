@@ -10,22 +10,24 @@
 <div align="right">
     <a th:href="@{/Logout}">Logout</a>
 </div>
-<h1>Welcome to the Money Transfer Home Page</h1>
-<p th:text="${'Nice to see you again ' + session.user.name + ' ' + session.user.surname}"></p>
+<h1>Confirmation</h1>
+<p th:text="Your transaction has been successfully executed"></p>
 
 <table>
     <thead>
     <tr>
-        <th>Account nr</th>
+        <th>ID</th>
         <th>Balance</th>
-        <th>Link</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="a : ${accounts}">
-        <td th:text="${a.accountId}"></td>
-        <td th:text="${a.balance}"></td>
-        <td><a th:href="@{/GetAccountDetails(accountid=${a.accountId})}">Details</a></td>
+    <tr>
+        <td th:text="${origin.accountId}"></td>
+        <td th:text="${origin.balance}"></td>
+    </tr>
+    <tr>
+        <td th:text="${destination.accountId}"></td>
+        <td th:text="${destination.balance}"></td>
     </tr>
     </tbody>
 </table>
