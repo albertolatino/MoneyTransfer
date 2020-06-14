@@ -1,11 +1,14 @@
 package it.polimi.tiw.controllers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import it.polimi.tiw.beans.Account;
+import it.polimi.tiw.dao.AccountDAO;
+import it.polimi.tiw.dao.TransactionDAO;
+import it.polimi.tiw.utils.ConnectionHandler;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -14,16 +17,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import it.polimi.tiw.beans.Account;
-import it.polimi.tiw.dao.TransactionDAO;
-import org.apache.commons.lang.StringEscapeUtils;
-
-import it.polimi.tiw.beans.User;
-import it.polimi.tiw.dao.AccountDAO;
-import it.polimi.tiw.utils.ConnectionHandler;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 
 @WebServlet("/CreateTransaction")
@@ -38,6 +34,14 @@ public class CreateTransaction extends HttpServlet {
     }
 
     public void init() throws ServletException {
+        ServletContext servletContext = getServletContext();
+        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        this.templateEngine = new TemplateEngine();
+        this.templateEngine.setTemplateResolver(templateResolver);
+        templateResolver.setSuffix(".html");
+
+
         connection = ConnectionHandler.getConnection(getServletContext());
     }
 
@@ -75,45 +79,82 @@ public class CreateTransaction extends HttpServlet {
             return;
         }
 
-        // Create transaction in DB
-        Integer accountId = (Integer) request.getAttribute("accountId");
-        TransactionDAO transactionDAO = new TransactionDAO(connection);
-        try {
-            transactionDAO.createTransaction(recipientUsername, accountId, recipientAccountId, amount, description);
-        } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create transaction");
-            return;
-        }
+        //todo rivedere attributo su session (dispatcher)
+        Integer originAccountId = (Integer) request.getSession().getAttribute("accountId");
 
-
-        /*
-        account id origin (mio) + balance
-        account id destination + balance
-         */
+        //account id origin (mine) + balance
+        //account id destination + balance
         AccountDAO accountDAO = new AccountDAO(connection);
-        Account origin = null;
-        Account destination = null;
+        TransactionDAO transactionDAO = new TransactionDAO(connection);
+        Account origin;
+        Account destination;
+        boolean usernameOwnsAccount = false;
         try {
-            origin = accountDAO.findAccountsById(accountId);
-            destination = accountDAO.findAccountsById(recipientAccountId);
-        } catch (SQLException throwables) {
+            origin = accountDAO.findAccountById(originAccountId);
+            //destination returns null if recipient account doesn't exist
+            destination = accountDAO.findAccountById(recipientAccountId);
+
+            usernameOwnsAccount = transactionDAO.checkAccountOwner(recipientUsername, recipientAccountId);
+        } catch (SQLException e) {
+            e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to retrieve accounts data");
             return;
         }
 
-        // return the user to the right view
-        //String contextPath = getServletContext().getContextPath();
-        //String path = contextPath + "/Confirmation";
-
-        //response.sendRedirect(path);
         ServletContext servletContext = getServletContext();
-        final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-        ctx.setVariable("origin", origin);
-        ctx.setVariable("destination", destination);
-        String path = "WEB-INF/confirmation.html";
-        templateEngine.process(path, ctx, response.getWriter());
+        final WebContext context = new WebContext(request, response, servletContext, request.getLocale());
+
+
+     /*
+        transaction checks:
+        existence destination (account)
+        origin != destination (account)
+        amount <= origin.balance (account)
+        username owns destination account (user, account)
+     */
+
+
+        String errorMsg = "";
+
+        if (destination == null) {
+            errorMsg = "Destination account doesn't exist";
+        } else if (usernameOwnsAccount) {
+            errorMsg = "Username doesn't match the selected account";
+        } else if (origin.getAccountId() == destination.getAccountId()) {
+            errorMsg = "Origin and destination account must be different";
+        } else if (amount > origin.getBalance()) {
+            errorMsg = "Insufficient funds for this transaction";
+        }
+
+        String path;
+
+        //no errors in transaction -> create transaction
+        if (errorMsg.equals("")) {
+
+            // Create transaction in DB
+            try {
+                transactionDAO.createTransaction(originAccountId, recipientAccountId, amount, description);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create transaction");
+                return;
+            }
+            path = "WEB-INF/confirmation.html";
+            context.setVariable("origin", origin);
+            context.setVariable("destination", destination);
+
+
+        } else {
+            //error page specifying error type
+            context.setVariable("errorMsg", errorMsg);
+            path = "WEB-INF/transactionError.html";
+        }
+
+
+        templateEngine.process(path, context, response.getWriter());
 
     }
+
 
     public void destroy() {
         try {

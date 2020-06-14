@@ -76,7 +76,7 @@ public class GetAccountDetails extends HttpServlet {
             return;
         }
 
-        request.setAttribute("accountId", accountId);
+        request.getSession().setAttribute("accountId", accountId);
 
         // Redirect to the Home page and add missions to the parameters
         String path = "/WEB-INF/AccountDetails.html";

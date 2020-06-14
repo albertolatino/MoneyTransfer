@@ -39,18 +39,23 @@ public class AccountDAO {
     }
 
 
-    public Account findAccountsById(int accountId) throws SQLException {
+    public Account findAccountById(int accountId) throws SQLException {
 
-        Account account = new Account();//Create java Bean
+        Account account; //Create java Bean
 
         String query = "SELECT * from account where accountId = ?";
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setInt(1, accountId);
 
             try (ResultSet result = pstatement.executeQuery()) {
+                result.first();
+                account = new Account();
                 account.setUserId(result.getInt("userId"));
                 account.setAccountId(result.getInt("accountId"));
                 account.setBalance((result.getDouble("balance")));
+            }catch (SQLException e) {
+                System.out.println("invalid accountId");
+                return null;
             }
         }
         return account;

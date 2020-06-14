@@ -57,41 +57,49 @@ public class TransactionDAO {
     }
 
 
-    public void createTransaction(String recipientUsername, int originId, int destinationId, double amount, String description)
+    public void createTransaction(int originId, int destinationId, double amount, String description)
             throws SQLException {
 
-        /*
-        if (!checkAccountOwner(recipientUsername, originId)) {
-            System.out.println("account && username not matching");
-            //todo
-        }*/
 
         String query = "INSERT into transaction (transactionId, date, amount, originId, destinationId, description) VALUES(NULL, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
 
-            pstatement.setDate(2, new Date(System.currentTimeMillis()));
-            pstatement.setDouble(3, amount);
-            pstatement.setInt(4, originId);
-            pstatement.setInt(5, destinationId);
-            pstatement.setString(6, description);
+            //todo bug time always 00:00
+            pstatement.setDate(1, new Date(System.currentTimeMillis()));
+            pstatement.setDouble(2, amount);
+            pstatement.setInt(3, originId);
+            pstatement.setInt(4, destinationId);
+            pstatement.setString(5, description);
 
             pstatement.executeUpdate();
         }
     }
 
-    private boolean checkAccountOwner(String username, int accountId) throws SQLException {
-        String query = "SELECT * FROM user, account  WHERE user.username = ? AND user.userId = account.userId AND account.accountId = ?";
+    /**
+     * Checks that username owns destination account.
+     *
+     * @param username
+     * @param accountId
+     * @return
+     * @throws SQLException
+     */
+    public boolean checkAccountOwner(String username, int accountId) throws SQLException {
+        String query = "SELECT * FROM user JOIN account ON user.userId = account.userId WHERE user.username = ? AND account.accountId = ?";
 
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setString(1, username);
             pstatement.setInt(2, accountId);
 
             try (ResultSet result = pstatement.executeQuery()) {
+                //todo return true if has 1 row, false otherwise
+                int counter = 0;
+                while(result.next()) {
+                    //System.out.println(result.next());
+                    counter++;
+                }
+                System.out.println(counter);
 
-                if (!result.isBeforeFirst()) // no results, check failed
-                    return false;
-                else
-                    return true;
+                return counter > 0;
             }
         }
     }
