@@ -73,7 +73,7 @@ public class AccountDAO {
     public void changeAccountBalance(int accountId, double balance) throws SQLException {
 
         String query = "UPDATE account SET balance = ? WHERE accountId = ? ";
-        try (PreparedStatement pstatement = connection.prepareStatement(query);) {
+        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setDouble(1, balance);
             pstatement.setInt(2, accountId);
             pstatement.executeUpdate();

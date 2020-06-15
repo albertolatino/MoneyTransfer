@@ -61,17 +61,33 @@ public class TransactionDAO {
             throws SQLException {
 
 
-        String query = "INSERT into transaction (transactionId, date, amount, originId, destinationId, description) VALUES(NULL, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
+        String transactionQuery = "INSERT into transaction (transactionId, date, amount, originId, destinationId, description) VALUES(NULL, NOW(), ?, ?, ?, ?)";
+        String originBalanceQuery = "UPDATE account SET balance = balance - ? WHERE accountId = ? AND balance >= 0";
+        String destinationBalanceQuery = "UPDATE account SET balance = balance + ? WHERE accountId = ? AND balance >= 0";
 
-            //todo bug time always 00:00
-            pstatement.setDate(1, new Date(System.currentTimeMillis()));
-            pstatement.setDouble(2, amount);
-            pstatement.setInt(3, originId);
-            pstatement.setInt(4, destinationId);
-            pstatement.setString(5, description);
 
-            pstatement.executeUpdate();
+        try (PreparedStatement insertTransaction = connection.prepareStatement(transactionQuery);
+             PreparedStatement updateOriginBalance = connection.prepareStatement(originBalanceQuery);
+             PreparedStatement updateDestinationBalance = connection.prepareStatement(destinationBalanceQuery)) {
+
+            connection.setAutoCommit(false);
+
+            insertTransaction.setDouble(1, amount);
+            insertTransaction.setInt(2, originId);
+            insertTransaction.setInt(3, destinationId);
+            insertTransaction.setString(4, description);
+
+            updateOriginBalance.setDouble(1, amount);
+            updateOriginBalance.setInt(2, originId);
+
+            updateDestinationBalance.setDouble(1, amount);
+            updateDestinationBalance.setInt(2, destinationId);
+
+            updateOriginBalance.executeUpdate();
+            updateDestinationBalance.executeUpdate();
+            insertTransaction.executeUpdate();
+
+            connection.commit();
         }
     }
 
@@ -91,15 +107,7 @@ public class TransactionDAO {
             pstatement.setInt(2, accountId);
 
             try (ResultSet result = pstatement.executeQuery()) {
-                //todo return true if has 1 row, false otherwise
-                int counter = 0;
-                while(result.next()) {
-                    //System.out.println(result.next());
-                    counter++;
-                }
-                System.out.println(counter);
-
-                return counter > 0;
+                return result.next();
             }
         }
     }

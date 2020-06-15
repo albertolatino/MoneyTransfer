@@ -58,18 +58,18 @@ public class CreateTransaction extends HttpServlet {
         // Get and parse all parameters from request
         boolean isBadRequest = false;
 
-        String recipientUsername = null;
-        Integer recipientAccountId = null;
+        String destinationUsername = null;
+        Integer destinationAccountId = null;
         Double amount = null;
         String description = null;
 
         try {
             amount = Double.parseDouble(request.getParameter("amount"));
-            recipientUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
-            recipientAccountId = Integer.parseInt(request.getParameter("recipient-accountid"));
+            destinationUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
+            destinationAccountId = Integer.parseInt(request.getParameter("recipient-accountid"));
             description = StringEscapeUtils.escapeJava(request.getParameter("description"));
 
-            isBadRequest = amount <= 0 || recipientUsername.isEmpty() || description.isEmpty();
+            isBadRequest = amount <= 0 || destinationUsername.isEmpty() || description.isEmpty();
         } catch (NumberFormatException | NullPointerException e) {
             isBadRequest = true;
             e.printStackTrace();
@@ -88,13 +88,13 @@ public class CreateTransaction extends HttpServlet {
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         Account origin;
         Account destination;
-        boolean usernameOwnsAccount = false;
+        boolean usernameOwnsAccount;
         try {
             origin = accountDAO.findAccountById(originAccountId);
             //destination returns null if recipient account doesn't exist
-            destination = accountDAO.findAccountById(recipientAccountId);
+            destination = accountDAO.findAccountById(destinationAccountId);
 
-            usernameOwnsAccount = transactionDAO.checkAccountOwner(recipientUsername, recipientAccountId);
+            usernameOwnsAccount = transactionDAO.checkAccountOwner(destinationUsername, destinationAccountId);
         } catch (SQLException e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to retrieve accounts data");
@@ -118,7 +118,7 @@ public class CreateTransaction extends HttpServlet {
 
         if (destination == null) {
             errorMsg = "Destination account doesn't exist";
-        } else if (usernameOwnsAccount) {
+        } else if (!usernameOwnsAccount) {
             errorMsg = "Username doesn't match the selected account";
         } else if (origin.getAccountId() == destination.getAccountId()) {
             errorMsg = "Origin and destination account must be different";
@@ -133,7 +133,9 @@ public class CreateTransaction extends HttpServlet {
 
             // Create transaction in DB
             try {
-                transactionDAO.createTransaction(originAccountId, recipientAccountId, amount, description);
+                transactionDAO.createTransaction(originAccountId, destinationAccountId, amount, description);
+                origin = accountDAO.findAccountById(originAccountId);
+                destination = accountDAO.findAccountById(destinationAccountId);
             } catch (SQLException e) {
                 e.printStackTrace();
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create transaction");
