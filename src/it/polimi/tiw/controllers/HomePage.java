@@ -46,15 +46,16 @@ public class HomePage extends HttpServlet {
         // If the user is not logged in (not present in session) redirect to the login
         String loginpath = getServletContext().getContextPath() + "/index.html";
         HttpSession session = request.getSession();
-        if (session.isNew() || session.getAttribute("user") == null) {
+        User user = (User) session.getAttribute("user");
+
+        if (session.isNew() || user == null) {
             response.sendRedirect(loginpath);
             return;
         }
 
-        User user = (User) session.getAttribute("user");
         AccountDAO accountDAO = new AccountDAO(connection);
         List<Account> accounts;
-        //todo account.user != user, security bug
+
         try {
             accounts = accountDAO.findAccountsByUser(user.getUsername());
         } catch (SQLException e) {

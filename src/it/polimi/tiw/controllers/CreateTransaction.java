@@ -1,6 +1,7 @@
 package it.polimi.tiw.controllers;
 
 import it.polimi.tiw.beans.Account;
+import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.AccountDAO;
 import it.polimi.tiw.dao.TransactionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
@@ -48,7 +49,8 @@ public class CreateTransaction extends HttpServlet {
             throws IOException {
         // If the user is not logged in (not present in session) redirect to the login
         HttpSession session = request.getSession();
-        if (session.isNew() || session.getAttribute("user") == null) {
+        User user = (User) session.getAttribute("user");
+        if (session.isNew() || user == null) {
             String loginpath = getServletContext().getContextPath() + "/index.html";
             response.sendRedirect(loginpath);
             return;
@@ -57,6 +59,7 @@ public class CreateTransaction extends HttpServlet {
         // Get and parse all parameters from request
         boolean isBadRequest = false;
 
+        Integer originAccountId = null;
         String destinationUsername = null;
         Integer destinationAccountId = null;
         Double amount = null;
@@ -65,6 +68,7 @@ public class CreateTransaction extends HttpServlet {
         try {
             amount = Double.parseDouble(request.getParameter("amount"));
             destinationUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
+            originAccountId = Integer.parseInt(request.getParameter("accountid"));
             destinationAccountId = Integer.parseInt(request.getParameter("recipient-accountid"));
             description = StringEscapeUtils.escapeJava(request.getParameter("description"));
 
@@ -78,8 +82,6 @@ public class CreateTransaction extends HttpServlet {
             return;
         }
 
-        //todo rivedere attributo su session (dispatcher)
-        Integer originAccountId = (Integer) request.getSession().getAttribute("accountId");
 
         //account id origin (mine) + balance
         //account id destination + balance
@@ -89,6 +91,11 @@ public class CreateTransaction extends HttpServlet {
         Account destination;
         boolean usernameOwnsAccount;
         try {
+            if(!accountDAO.userOwnsAccount(user.getUsername(), originAccountId)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "You don't own the origin account");
+                return;
+            }
+
             origin = accountDAO.findAccountById(originAccountId);
             //destination returns null if recipient account doesn't exist
             destination = accountDAO.findAccountById(destinationAccountId);
@@ -101,7 +108,7 @@ public class CreateTransaction extends HttpServlet {
         }
 
         ServletContext servletContext = getServletContext();
-        final WebContext context = new WebContext(request, response, servletContext, request.getLocale());
+        final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 
 
      /*
@@ -141,18 +148,18 @@ public class CreateTransaction extends HttpServlet {
                 return;
             }
             path = "WEB-INF/confirmation.html";
-            context.setVariable("origin", origin);
-            context.setVariable("destination", destination);
+            ctx.setVariable("origin", origin);
+            ctx.setVariable("destination", destination);
 
 
         } else {
             //error page specifying error type
-            context.setVariable("errorMsg", errorMsg);
+            ctx.setVariable("errorMsg", errorMsg);
             path = "WEB-INF/transactionError.html";
         }
 
 
-        templateEngine.process(path, context, response.getWriter());
+        templateEngine.process(path, ctx, response.getWriter());
 
     }
 
