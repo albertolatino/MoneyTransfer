@@ -50,6 +50,7 @@ public class HomePage extends HttpServlet {
             response.sendRedirect(loginpath);
             return;
         }
+
         User user = (User) session.getAttribute("user");
         AccountDAO accountDAO = new AccountDAO(connection);
         List<Account> accounts;
