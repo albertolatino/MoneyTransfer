@@ -48,7 +48,6 @@ public class CheckLogin extends HttpServlet {
             usrn = StringEscapeUtils.escapeJava(request.getParameter("username"));
             pwd = StringEscapeUtils.escapeJava(request.getParameter("pwd"));
         } catch (NullPointerException e) {
-            // for debugging only e.printStackTrace();
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing param values");
             return;
         }
@@ -83,6 +82,11 @@ public class CheckLogin extends HttpServlet {
             response.sendRedirect(path);
         }
 
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        doPost(request, response);
     }
 
     public void destroy() {

@@ -41,7 +41,6 @@ public class CreateTransaction extends HttpServlet {
         this.templateEngine.setTemplateResolver(templateResolver);
         templateResolver.setSuffix(".html");
 
-
         connection = ConnectionHandler.getConnection(getServletContext());
     }
 
@@ -157,6 +156,10 @@ public class CreateTransaction extends HttpServlet {
 
     }
 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        doPost(request, response);
+    }
 
     public void destroy() {
         try {

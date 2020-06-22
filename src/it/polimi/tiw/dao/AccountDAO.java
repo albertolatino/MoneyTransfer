@@ -62,39 +62,4 @@ public class AccountDAO {
 
     }
 
-
-    /**
-     * Changes account balance.
-     *
-     * @param accountId Account to be changed.
-     * @param balance   Total balance in account.
-     * @throws SQLException
-     */
-    public void changeAccountBalance(int accountId, double balance) throws SQLException {
-
-        String query = "UPDATE account SET balance = ? WHERE accountId = ? ";
-        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
-            pstatement.setDouble(1, balance);
-            pstatement.setInt(2, accountId);
-            pstatement.executeUpdate();
-        }
-    }
-
-	/*
-	public void createMission(Date startDate, int days, String destination, String description, int reporterId)
-			throws SQLException {
-
-		String query = "INSERT into mission (date, destination, state, description, days, reporter) VALUES(?, ?, ?, ?, ?, ?)";
-		try (PreparedStatement pstatement = connection.prepareStatement(query);) {
-			pstatement.setDate(1, new java.sql.Date(startDate.getTime()));
-			pstatement.setString(2, destination);
-			pstatement.setInt(3, MissionStatus.OPEN.getValue());
-			pstatement.setString(4, description);
-			pstatement.setInt(5, days);
-			pstatement.setInt(6, reporterId);
-			pstatement.executeUpdate();
-		}
-	}*/
-
-
 }

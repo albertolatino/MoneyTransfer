@@ -7,26 +7,25 @@
           href="../css/mystyle.css" th:href="@{/css/mystyle.css}"/>
 </head>
 <body>
-<h1>Welcome to the Money Transfer Home Page</h1>
-
 <div align="right">
     <a th:href="@{/Logout}">Logout</a>
 </div>
-<p th:text="${'Nice to see you again ' + session.user.name + ' ' + session.user.surname}"></p>
+<h1>Welcome to the Money Transfer Home Page</h1>
+<p th:text="${'Welcome back ' + session.user.name + ' ' + session.user.surname}"></p>
 
 <table>
     <thead>
     <tr>
-        <th>Account nr</th>
+        <th>Account Nr</th>
         <th>Balance</th>
-        <th>Link</th>
+        <th>Details</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="a : ${accounts}">
         <td th:text="${a.accountId}"></td>
         <td th:text="${a.balance}"></td>
-        <td><a th:href="@{/GetAccountDetails(accountid=${a.accountId})}">Details</a></td>
+        <td><a th:href="@{/GetAccountDetails(accountid=${a.accountId})}">Show</a></td>
     </tr>
     </tbody>
 </table>

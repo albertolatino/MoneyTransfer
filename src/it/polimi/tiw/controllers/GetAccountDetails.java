@@ -57,16 +57,12 @@ public class GetAccountDetails extends HttpServlet {
         try {
             accountId = Integer.parseInt(request.getParameter("accountid"));
         } catch (NumberFormatException | NullPointerException e) {
-            // only for debugging e.printStackTrace();
+            //e.printStackTrace();
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
             return;
         }
 
-        // If a mission with that ID exists for that USER,
-        // obtain the expense report for it
-
         //todo passare account a questa servlet in modo che venga passato a template account details
-        //User user = (User) session.getAttribute("user");
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         List<Transaction> transactions;
         try {
@@ -78,12 +74,16 @@ public class GetAccountDetails extends HttpServlet {
 
         request.getSession().setAttribute("accountId", accountId);
 
-        // Redirect to the Home page and add missions to the parameters
         String path = "/WEB-INF/AccountDetails.html";
         ServletContext servletContext = getServletContext();
         final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
         ctx.setVariable("transactions", transactions);
         templateEngine.process(path, ctx, response.getWriter());
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        doGet(request, response);
     }
 
     public void destroy() {
