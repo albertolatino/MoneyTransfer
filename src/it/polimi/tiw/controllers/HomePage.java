@@ -56,7 +56,7 @@ public class HomePage extends HttpServlet {
         List<Account> accounts;
         //todo account.user != user, security bug
         try {
-            accounts = accountDAO.findAccountsByUser(user.getUserId());
+            accounts = accountDAO.findAccountsByUser(user.getUsername());
         } catch (SQLException e) {
             // for debugging only e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to recover accounts");
