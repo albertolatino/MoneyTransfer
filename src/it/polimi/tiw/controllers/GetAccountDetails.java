@@ -62,12 +62,12 @@ public class GetAccountDetails extends HttpServlet {
             return;
         }
 
-        //todo passare account a questa servlet in modo che venga passato a template account details
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         List<Transaction> transactions;
         try {
             transactions = transactionDAO.findTransactionsByAccount(accountId);
         } catch (SQLException e) {
+            e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to recover transactions");
             return;
         }

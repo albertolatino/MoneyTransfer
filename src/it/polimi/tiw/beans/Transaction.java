@@ -9,8 +9,26 @@ public class Transaction {
     private double amount;
     private Date date;
     private int originId;
+    private String originUsername;
     private int destinationId;
+    private String destinationUsername;
     private String description;
+
+    public String getOriginUsername() {
+        return originUsername;
+    }
+
+    public void setOriginUsername(String originUsername) {
+        this.originUsername = originUsername;
+    }
+
+    public String getDestinationUsername() {
+        return destinationUsername;
+    }
+
+    public void setDestinationUsername(String destinationUsername) {
+        this.destinationUsername = destinationUsername;
+    }
 
     public String getDescription() {
         return description;

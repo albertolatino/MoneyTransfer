@@ -13,15 +13,16 @@
 
 <h1>Money Transfer Home Page</h1>
 
-<p th:text="${'Account transactions'}"></p>
-
+<h3>Account Transactions</h3>
 <table>
     <thead>
     <tr>
         <th>Import</th>
         <th>Date</th>
-        <th>Origin</th>
-        <th>Destination</th>
+        <th>Origin Usrn</th>
+        <th>Origin Acct</th>
+        <th>Destination Usrn</th>
+        <th>Destination Acct</th>
         <th>Description</th>
         <th>ID</th>
     </tr>
@@ -30,7 +31,9 @@
     <tr th:each="t : ${transactions}">
         <td th:text="${t.amount}"></td>
         <td th:text="${t.date}"></td>
+        <td th:text="${t.originUsername}"></td>
         <td th:text="${t.originId}"></td>
+        <td th:text="${t.destinationUsername}"></td>
         <td th:text="${t.destinationId}"></td>
         <td th:text="${t.description}"></td>
         <td th:text="${t.transactionId}"></td>

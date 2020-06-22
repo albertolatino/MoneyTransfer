@@ -18,7 +18,12 @@ public class TransactionDAO {
 
         List<Transaction> transactions = new ArrayList<>();
 
-        String query = "SELECT * from transaction where originId = ? OR destinationId = ? ORDER BY date DESC";
+        String query = "SELECT transactionId, date, amount, originId, A1.username, " +
+                       "destinationId, A2.username, description " +
+                       "FROM transaction " +
+                       "JOIN account A1 ON originId = A1.accountId " +
+                       "JOIN account A2 ON destinationId = A2.accountId " +
+                       "WHERE originId = ? OR destinationId = ? ORDER BY date DESC";
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setInt(1, accountId);
             pstatement.setInt(2, accountId);
@@ -31,6 +36,8 @@ public class TransactionDAO {
                     transaction.setOriginId(result.getInt("originId"));
                     transaction.setDestinationId(result.getInt("destinationId"));
                     transaction.setDescription(result.getString("description"));
+                    transaction.setOriginUsername(result.getString("A1.username"));
+                    transaction.setDestinationUsername(result.getString("A2.username"));
                     transactions.add(transaction);
                 }
             }
