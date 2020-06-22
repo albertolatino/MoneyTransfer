@@ -54,6 +54,17 @@ public class CreateTransaction extends HttpServlet {
             return;
         }
 
+        //todo verificare account appartiene a user
+
+        int originAccountId;
+        try {
+            originAccountId = Integer.parseInt(request.getParameter("accountid"));
+        } catch (NumberFormatException | NullPointerException e) {
+            //e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+            return;
+        }
+
         // Get and parse all parameters from request
         boolean isBadRequest = false;
 
@@ -78,8 +89,6 @@ public class CreateTransaction extends HttpServlet {
             return;
         }
 
-        //todo rivedere attributo su session (dispatcher)
-        Integer originAccountId = (Integer) request.getSession().getAttribute("accountId");
 
         //account id origin (mine) + balance
         //account id destination + balance
@@ -101,7 +110,7 @@ public class CreateTransaction extends HttpServlet {
         }
 
         ServletContext servletContext = getServletContext();
-        final WebContext context = new WebContext(request, response, servletContext, request.getLocale());
+        final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 
 
      /*
@@ -141,18 +150,18 @@ public class CreateTransaction extends HttpServlet {
                 return;
             }
             path = "WEB-INF/confirmation.html";
-            context.setVariable("origin", origin);
-            context.setVariable("destination", destination);
+            ctx.setVariable("origin", origin);
+            ctx.setVariable("destination", destination);
 
 
         } else {
             //error page specifying error type
-            context.setVariable("errorMsg", errorMsg);
+            ctx.setVariable("errorMsg", errorMsg);
             path = "WEB-INF/transactionError.html";
         }
 
 
-        templateEngine.process(path, context, response.getWriter());
+        templateEngine.process(path, ctx, response.getWriter());
 
     }
 

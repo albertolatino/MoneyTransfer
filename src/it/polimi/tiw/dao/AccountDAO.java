@@ -53,12 +53,27 @@ public class AccountDAO {
                 account.setUsername(result.getString("username"));
                 account.setAccountId(result.getInt("accountId"));
                 account.setBalance((result.getDouble("balance")));
-            }catch (SQLException e) {
+            } catch (SQLException e) {
                 System.out.println("invalid accountId");
                 return null;
             }
         }
         return account;
+
+    }
+
+
+    public boolean userOwnsAccount(String username, int accountId) throws SQLException {
+        String query = "SELECT * FROM account  WHERE username = ? AND accountId = ?";
+        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
+
+            pstatement.setString(1, username);
+            pstatement.setInt(2, accountId);
+
+            try (ResultSet result = pstatement.executeQuery()) {
+                return result.next();
+            }
+        }
 
     }
 

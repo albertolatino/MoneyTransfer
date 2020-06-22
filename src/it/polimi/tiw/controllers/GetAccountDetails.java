@@ -1,6 +1,8 @@
 package it.polimi.tiw.controllers;
 
 import it.polimi.tiw.beans.Transaction;
+import it.polimi.tiw.beans.User;
+import it.polimi.tiw.dao.AccountDAO;
 import it.polimi.tiw.dao.TransactionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import org.thymeleaf.TemplateEngine;
@@ -47,7 +49,8 @@ public class GetAccountDetails extends HttpServlet {
         // If the user is not logged in (not present in session) redirect to the login
         String loginpath = getServletContext().getContextPath() + "/index.html";
         HttpSession session = request.getSession();
-        if (session.isNew() || session.getAttribute("user") == null) {
+        User user = (User)session.getAttribute("user");
+        if (session.isNew() || user == null) {
             response.sendRedirect(loginpath);
             return;
         }
@@ -62,9 +65,16 @@ public class GetAccountDetails extends HttpServlet {
             return;
         }
 
+        AccountDAO accountDAO = new AccountDAO(connection);
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         List<Transaction> transactions;
         try {
+
+            if(!accountDAO.userOwnsAccount(user.getUsername(), accountId)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "You don't own the origin account");
+                return;
+            }
+
             transactions = transactionDAO.findTransactionsByAccount(accountId);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -72,11 +82,11 @@ public class GetAccountDetails extends HttpServlet {
             return;
         }
 
-        request.getSession().setAttribute("accountId", accountId);
 
         String path = "/WEB-INF/AccountDetails.html";
         ServletContext servletContext = getServletContext();
         final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+        ctx.setVariable("accountid", accountId);
         ctx.setVariable("transactions", transactions);
         templateEngine.process(path, ctx, response.getWriter());
     }

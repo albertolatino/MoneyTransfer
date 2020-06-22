@@ -43,7 +43,7 @@
 
 <div>
     <p>Complete the form to make a transaction</p>
-    <form action="#" th:action="@{/CreateTransaction}" method="POST">
+    <form action="#" th:action="@{/CreateTransaction(accountid=${accountid})}" method="POST">
         <fieldset>
             <label>
                 Recipient Username: <input type="text" name="recipient-username" required/><br>
