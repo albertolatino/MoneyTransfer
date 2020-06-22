@@ -89,18 +89,15 @@ public class CreateTransaction extends HttpServlet {
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         Account origin;
         Account destination;
-        boolean usernameOwnsAccount;
+        boolean originUserOwnsAccount, destinationUserOwnsAccount;
         try {
-            if(!accountDAO.userOwnsAccount(user.getUsername(), originAccountId)) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "You don't own the origin account");
-                return;
-            }
+            originUserOwnsAccount = accountDAO.userOwnsAccount(user.getUsername(), originAccountId);
+            destinationUserOwnsAccount = accountDAO.userOwnsAccount(destinationUsername, destinationAccountId);
 
             origin = accountDAO.findAccountById(originAccountId);
             //destination returns null if recipient account doesn't exist
             destination = accountDAO.findAccountById(destinationAccountId);
 
-            usernameOwnsAccount = transactionDAO.checkAccountOwner(destinationUsername, destinationAccountId);
         } catch (SQLException e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to retrieve accounts data");
@@ -124,7 +121,9 @@ public class CreateTransaction extends HttpServlet {
 
         if (destination == null) {
             errorMsg = "Destination account doesn't exist";
-        } else if (!usernameOwnsAccount) {
+        } else if (!originUserOwnsAccount) {
+            errorMsg = "You don't own the origin account";
+        } else if (!destinationUserOwnsAccount) {
             errorMsg = "Username doesn't match the selected account";
         } else if (origin.getAccountId() == destination.getAccountId()) {
             errorMsg = "Origin and destination account must be different";
@@ -157,7 +156,6 @@ public class CreateTransaction extends HttpServlet {
             ctx.setVariable("errorMsg", errorMsg);
             path = "WEB-INF/transactionError.html";
         }
-
 
         templateEngine.process(path, ctx, response.getWriter());
 
